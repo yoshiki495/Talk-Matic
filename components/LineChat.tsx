@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
 const MicRecorder = require('mic-recorder-to-mp3');
@@ -9,7 +9,6 @@ const AIChat: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false)
   const [inputText, setInputText] = useState('')
   const [response, setResponse] = useState('')
-  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const startRecording = async () => {
     try {
@@ -46,13 +45,23 @@ const AIChat: React.FC = () => {
     try {
       const { data } = await axios.post('/api/chatgpt', { prompt: text })
       setResponse(data.text)
-      if (audioRef.current) {
-        audioRef.current.src = `data:audio/wav;base64,${data.text}`
-      }
     } catch (e) {
       console.error(e)
     }
   }
+
+  useEffect(() => {
+    if (response) {
+      speak(response);
+    }
+  }, [response]);
+
+  const speak = (text: string) => {
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    synth.speak(utterance);
+  };
 
   const handleTextSubmit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -101,7 +110,6 @@ const AIChat: React.FC = () => {
             <div>
               <p className="font-semibold">AI Response:</p>
               <p className="text-gray-600 mb-4">{response}</p>
-              <audio ref={audioRef} controls className="w-full" />
             </div>
           </div>
         </div>
