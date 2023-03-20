@@ -10,6 +10,7 @@
 
 - TypeScript
 - Next.js
+- Vercel
 - GPT-3.5-Turbo
 - Whisper
 - mic-recorder-to-mp3
